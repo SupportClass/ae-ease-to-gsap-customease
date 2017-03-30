@@ -45,6 +45,13 @@
 
 			for (i = 1; i < currentProperty.numKeys; i++) {
 				var data = calcData(currentProperty, i, i + 1);
+				
+				// For linear eases, just draw a line.
+				if (currentProperty.keyOutInterpolationType(i) === KeyframeInterpolationType.LINEAR && 
+					currentProperty.keyInInterpolationType(i + 1) === KeyframeInterpolationType.LINEAR){
+					path += 'L' + cleanNumber(data.endTime) + ',' + cleanNumber(data.endValue);
+					continue;
+				}
 
 				// Outgoing control point
 				var outgoingEase = currentProperty.keyOutTemporalEase(i);

@@ -4,7 +4,8 @@
 		"$": true,
 		"app": true,
 		"alert": true,
-		"system": true
+		"system": true,
+		"KeyframeInterpolationType": true
 	},
 	"rules": {
 		"no-alert": [0]
