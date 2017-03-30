@@ -1,18 +1,17 @@
-// This script currently can't automatically determine FPS, just change this number for now.
 (function () {
 	'use strict';
 
-	var framerate = 60;
-
 	var curItem = app.project.activeItem;
+	var framerate = curItem.frameRate;
 	var selectedLayers = curItem.selectedLayers;
-	var selectedProperties = app.project.activeItem.selectedProperties;
-	if (selectedLayers == 0) { // eslint-disable-line eqeqeq
+	var selectedProperties = curItem.selectedProperties;
+
+	if (selectedLayers.length == 0) { // eslint-disable-line eqeqeq
 		alert('Please Select at least one Layer');
 		return;
 	}
 
-	if (selectedProperties == 0) { // eslint-disable-line eqeqeq
+	if (selectedProperties.length == 0) { // eslint-disable-line eqeqeq
 		alert('Please Select at least one Property (Scale, Opacity, etc)');
 		return;
 	}
@@ -29,7 +28,14 @@
 			}
 
 			var curveStartFrame = currentProperty.keyTime(1) * framerate;
-			var curveStartValue = currentProperty.keyValue(1)[0];
+			var curveStartValue;
+
+			if (currentProperty.value instanceof Array) {
+				curveStartValue = currentProperty.keyValue(1)[0];
+			} else {
+				curveStartValue = currentProperty.keyValue(1);
+			}
+
 			var path = 'M' + curveStartFrame.toFixed(3) + ',' + curveStartValue.toFixed(3);
 
 			var m;
@@ -92,8 +98,16 @@
 		var endFrame = endTime * framerate;
 		var durationFrames = endFrame - startFrame;
 
-		var startValue = property.keyValue(startIndex)[0];
-		var endValue = property.keyValue(endIndex)[0];
+		var startValue;
+		var endValue;
+
+		if (property.value instanceof Array) {
+			startValue = property.keyValue(startIndex)[0];
+			endValue = property.keyValue(endIndex)[0];
+		} else {
+			startValue = property.keyValue(startIndex);
+			endValue = property.keyValue(endIndex);
+		}
 
 		return {
 			startTime: startTime,
