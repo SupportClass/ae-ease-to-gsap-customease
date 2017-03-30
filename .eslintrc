@@ -1,0 +1,12 @@
+{
+	"extends": "xo",
+	"globals": {
+		"$": true,
+		"app": true,
+		"alert": true,
+		"system": true
+	},
+	"rules": {
+		"no-alert": [0]
+	}
+}

@@ -1,0 +1,27 @@
+{
+  "name": "ae-ease-to-gsap-customease",
+  "version": "1.0.0",
+  "description": "Converts the keyframes of the selected property in After Effects to a set of SVG path commands that can be used directly in GreenSock's CustomEase plugin",
+  "main": "ae-ease-to-gasp-customease.js",
+  "scripts": {
+    "test": "npm run static",
+    "static": "eslint ae-ease-to-gsap-customease.jsx"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SupportClass/ae-ease-to-gsap-customease.git"
+  },
+  "author": "Alex Van Camp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SupportClass/ae-ease-to-gsap-customease/issues"
+  },
+  "homepage": "https://github.com/SupportClass/ae-ease-to-gsap-customease#readme",
+  "devDependencies": {
+    "eslint": "^3.18.0",
+    "eslint-config-xo": "^0.18.1"
+  },
+  "files": [
+    "ae-ease-to-gsap-customease.jss"
+  ]
+}
