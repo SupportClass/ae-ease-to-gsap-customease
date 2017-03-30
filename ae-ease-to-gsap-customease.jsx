@@ -1,8 +1,4 @@
 // This script currently can't automatically determine FPS, just change this number for now.
-
-// This script also currently ONLY WORKS ON WINDOWS due to the copyTextToClipboard function
-// being hardcoded for windows only. If not on windows, you'll need to edit this script to disable
-// the clipboard functionality and probably copy the output directly from the ExtendScript IDE.
 (function () {
 	'use strict';
 
@@ -117,7 +113,13 @@
 
 	// From https://forums.adobe.com/message/9157695#9157695
 	function copyTextToClipboard(str) {
-		var cmdString = 'cmd.exe /c cmd.exe /c "echo ' + str + ' | clip"';
+		var cmdString;
+		if ($.os.indexOf('Windows') === -1) {
+			cmdString = 'echo "' + str + '" | pbcopy';
+		} else {
+			cmdString = 'cmd.exe /c cmd.exe /c "echo ' + str + ' | clip"';
+		}
+
 		system.callSystem(cmdString);
 	}
 })();
