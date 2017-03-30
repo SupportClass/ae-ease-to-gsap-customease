@@ -36,51 +36,29 @@
 				curveStartValue = currentProperty.keyValue(1);
 			}
 
+			// The path data we output is in SVG path format: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+			// Moves the drawing pen to the start point of the path.
 			var path = 'M' + cleanNumber(curveStartFrame) + ',' + cleanNumber(curveStartValue);
 
-			var m;
-			var b;
-			var x;
-			var y;
-
 			for (i = 1; i < currentProperty.numKeys; i++) {
-				var data = calcData(currentProperty, i, i + 1);
-				
-				// For linear eases, just draw a line.
-				if (currentProperty.keyOutInterpolationType(i) === KeyframeInterpolationType.LINEAR && 
-					currentProperty.keyInInterpolationType(i + 1) === KeyframeInterpolationType.LINEAR){
-					path += 'L' + cleanNumber(data.endTime) + ',' + cleanNumber(data.endValue);
+				var tweenData = calcTweenData(currentProperty, i, i + 1);
+				var easeType = calcEaseType(currentProperty, i, i + 1);
+				$.writeln('easeType: ' + easeType);
+
+				// For linear eases, just draw a line. (L x y)
+				if (easeType === 'linear-linear') {
+					path += 'L' + cleanNumber(tweenData.endFrame) + ',' + cleanNumber(tweenData.endValue);
 					continue;
 				}
 
-				// Outgoing control point
-				var outgoingEase = currentProperty.keyOutTemporalEase(i);
-				var outgoingSpeed = outgoingEase[0].speed;
-				var outgoingInfluence = outgoingEase[0].influence / 100;
+				if (easeType === 'unsupported') {
+					$.writeln('UNSUPPORTED EASING PAIR!');
+					alert('This keyframe pair uses an unsupported pair of ease types, results may be inaccurate.');
+				}
 
-				m = outgoingSpeed / framerate; // Slope
-				b = data.startValue - data.endValue; // Y-intercept
-				x = data.durationFrames * outgoingInfluence;
-				y = (m * x) + b;
-
-				$.writeln('Outgoing CP: ' + (data.startFrame + x) + ', ' + (data.endValue + y));
-				path += 'C' + cleanNumber(data.startFrame + x) + ',' + cleanNumber(data.endValue + y);
-
-				// Incoming control point
-				var incomingEase = currentProperty.keyInTemporalEase(i + 1);
-				var incomingSpeed = incomingEase[0].speed;
-				var incomingInfluence = incomingEase[0].influence / 100;
-
-				m = Math.abs(incomingSpeed) / framerate; // Slope
-				b = data.endValue; // Y-intercept
-				x = data.durationFrames * incomingInfluence;
-				y = (m * x) + b;
-
-				$.writeln('Incoming CP: ' + (data.endFrame - x) + ', ' + y);
-				path += ',' + cleanNumber(data.endFrame - x) + ',' + cleanNumber(y);
-
-				// End anchor point
-				path += ',' + cleanNumber(data.endFrame) + ',' + cleanNumber(data.endValue);
+				path += 'C' + calcOutgoingControlPoint(tweenData, currentProperty, i);
+				path += ',' + calcIncomingControlPoint(tweenData, currentProperty, i);
+				path += ',' + cleanNumber(tweenData.endFrame) + ',' + cleanNumber(tweenData.endValue);
 
 				$.writeln();
 			}
@@ -96,7 +74,7 @@
 		}
 	}
 
-	function calcData(property, startIndex, endIndex) {
+	function calcTweenData(property, startIndex, endIndex) {
 		var startTime = property.keyTime(startIndex);
 		var endTime = property.keyTime(endIndex);
 		var durationTime = endTime - startTime;
@@ -142,5 +120,64 @@
 		}
 
 		system.callSystem(cmdString);
+	}
+
+	function calcEaseType(property, startIndex, endIndex) {
+		var startInterpolation = property.keyOutInterpolationType(startIndex);
+		var endInterpolation = property.keyInInterpolationType(endIndex);
+
+		if (startInterpolation === KeyframeInterpolationType.LINEAR &&
+			endInterpolation === KeyframeInterpolationType.LINEAR) {
+			return 'linear-linear';
+		}
+
+		if (startInterpolation === KeyframeInterpolationType.LINEAR &&
+			endInterpolation === KeyframeInterpolationType.BEZIER) {
+			return 'linear-bezier';
+		}
+
+		if (startInterpolation === KeyframeInterpolationType.BEZIER &&
+			endInterpolation === KeyframeInterpolationType.LINEAR) {
+			return 'bezier-linear';
+		}
+
+		if (startInterpolation === KeyframeInterpolationType.BEZIER &&
+			endInterpolation === KeyframeInterpolationType.BEZIER) {
+			return 'bezier-bezier';
+		}
+
+		return 'unsupported';
+	}
+
+	function calcOutgoingControlPoint(tweenData, property, keyIndex) {
+		var outgoingEase = property.keyOutTemporalEase(keyIndex);
+		var outgoingSpeed = outgoingEase[0].speed;
+		var outgoingInfluence = outgoingEase[0].influence / 100;
+
+		var m = outgoingSpeed / framerate; // Slope
+		var x = tweenData.durationFrames * outgoingInfluence;
+		var b = tweenData.startValue - tweenData.endValue; // Y-intercept
+		var y = (m * x) + b;
+
+		var correctedX = cleanNumber(tweenData.startFrame + x);
+		var correctedY = cleanNumber(tweenData.endValue + y);
+		$.writeln('Outgoing CP: ' + correctedX + ',' + correctedY);
+		return correctedX + ',' + correctedY;
+	}
+
+	function calcIncomingControlPoint(tweenData, property, keyIndex) {
+		var incomingEase = property.keyInTemporalEase(keyIndex + 1);
+		var incomingSpeed = incomingEase[0].speed;
+		var incomingInfluence = incomingEase[0].influence / 100;
+
+		var m = Math.abs(incomingSpeed) / framerate; // Slope
+		var x = tweenData.durationFrames * incomingInfluence;
+		var b = tweenData.endValue; // Y-intercept
+		var y = (m * x) + b;
+
+		var correctedX = cleanNumber(tweenData.endFrame - x);
+		var correctedY = cleanNumber(y);
+		$.writeln('Incoming CP: ' + correctedX + ', ' + correctedY);
+		return correctedX + ',' + correctedY;
 	}
 })();
