@@ -24,8 +24,8 @@ To preview your ease, you can paste it into GreenSock's "[Ease Visualizer](https
 
 ## Thanks
 In writing this script, I studied code from 
-- @turbodrive ([Source](https://gist.github.com/turbodrive/a0913ac83e3d5d5f5b15))
-- @juancabrera ([Source](https://gist.github.com/juancabrera/026fb883cb2bae93bd21))
-- @bodymovin ([Source](https://github.com/bodymovin/bodymovin))
+- [@turbodrive](https://github.com/turbodrive) ([Source](https://gist.github.com/turbodrive/a0913ac83e3d5d5f5b15))
+- [@juancabrera](https://github.com/juancabrera) ([Source](https://gist.github.com/juancabrera/026fb883cb2bae93bd21))
+- [@bodymovin](https://github.com/bodymovin) ([Source](https://github.com/bodymovin/bodymovin))
 
-I also received guidance from @zlovatt, who made time to answer my beginner questions.
+I also received guidance from [@zlovatt](https://github.com/zlovatt), who made time to answer my beginner questions.
