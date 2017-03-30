@@ -1,4 +1,5 @@
 # ae-ease-to-gsap-customease [![Build Status](https://travis-ci.org/SupportClass/ae-ease-to-gsap-customease.svg?branch=master)](https://travis-ci.org/SupportClass/ae-ease-to-gsap-customease)
+Converts the keyframes of the selected property in After Effects to a set of SVG path commands that can be used directly in GreenSock's CustomEase plugin.
 
 ## Motivation
 Ever wished you could take your ease curve from the graph editor in After Effects and somehow use it directly
