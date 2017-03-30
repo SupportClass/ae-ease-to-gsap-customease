@@ -36,7 +36,7 @@
 				curveStartValue = currentProperty.keyValue(1);
 			}
 
-			var path = 'M' + curveStartFrame.toFixed(3) + ',' + curveStartValue.toFixed(3);
+			var path = 'M' + cleanNumber(curveStartFrame) + ',' + cleanNumber(curveStartValue);
 
 			var m;
 			var b;
