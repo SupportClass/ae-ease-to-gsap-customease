@@ -32,3 +32,6 @@ In writing this script, I studied code from
 - [@bodymovin](https://github.com/bodymovin) ([Source](https://github.com/bodymovin/bodymovin))
 
 I also received guidance from [@zlovatt](https://github.com/zlovatt), who made time to answer my beginner questions.
+
+## License
+[MIT](LICENSE)
