@@ -156,11 +156,11 @@
 
 		var m = outgoingSpeed / framerate; // Slope
 		var x = tweenData.durationFrames * outgoingInfluence;
-		var b = tweenData.startValue - tweenData.endValue; // Y-intercept
+		var b = tweenData.startValue; // Y-intercept
 		var y = (m * x) + b;
 
 		var correctedX = cleanNumber(tweenData.startFrame + x);
-		var correctedY = cleanNumber(tweenData.endValue + y);
+		var correctedY = cleanNumber(y);
 		$.writeln('Outgoing CP: ' + correctedX + ',' + correctedY);
 		return correctedX + ',' + correctedY;
 	}
