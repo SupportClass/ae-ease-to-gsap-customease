@@ -257,13 +257,23 @@
 		var endInterpolation = property.keyInInterpolationType(endIndex);
 
 		if (startInterpolation === KeyframeInterpolationType.LINEAR &&
-			endInterpolation !== KeyframeInterpolationType.HOLD) {
+			endInterpolation === KeyframeInterpolationType.LINEAR) {
 			return 'linear-linear';
 		}
 
+		if (startInterpolation === KeyframeInterpolationType.LINEAR &&
+			endInterpolation === KeyframeInterpolationType.BEZIER) {
+			return 'linear-bezier';
+		}
+
 		if (startInterpolation === KeyframeInterpolationType.BEZIER &&
-			endInterpolation !== KeyframeInterpolationType.HOLD) {
+			endInterpolation === KeyframeInterpolationType.LINEAR) {
 			return 'bezier-linear';
+		}
+
+		if (startInterpolation === KeyframeInterpolationType.BEZIER &&
+			endInterpolation === KeyframeInterpolationType.BEZIER) {
+			return 'bezier-bezier';
 		}
 
 		return 'unsupported';
