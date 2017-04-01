@@ -1,6 +1,9 @@
 ﻿(function () {
 	'use strict';
 
+	// Set to true to turn on logging in ExtendScript Toolkit
+	var debug = false;
+
 	/**
 	 * An SVG path comprised of multiple path drawing commands.
 	 * https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
@@ -123,9 +126,9 @@
 		}
 
 		var pathString = path.toString();
-		$.writeln(pathString);
-		$.writeln();
-		$.writeln();
+		log(pathString);
+		log();
+		log();
 		copyTextToClipboard(pathString);
 		alert('Copied to clipboard:\n' + pathString +
 			'\n\nPaste directly into a GSAP CustomEase, like:\n' +
@@ -155,7 +158,7 @@
 			var command = getCommand(property, i);
 			path.commands.push(command);
 
-			$.writeln();
+			log();
 		}
 
 		var endPoint = path.getEndPoint();
@@ -169,7 +172,7 @@
 		var command;
 		var tweenData = calcTweenData(property, keyIndex, keyIndex + 1);
 		var easeType = calcEaseType(property, keyIndex, keyIndex + 1);
-		$.writeln('easeType: ' + easeType);
+		log('easeType: ' + easeType);
 
 		// For linear eases, just draw a line. (L x y)
 		if (easeType === 'linear-linear') {
@@ -178,7 +181,7 @@
 		}
 
 		if (easeType === 'unsupported') {
-			$.writeln('UNSUPPORTED EASING PAIR!');
+			log('UNSUPPORTED EASING PAIR!');
 			alert('This keyframe pair uses an unsupported pair of ease types, results may be inaccurate.');
 		}
 
@@ -286,5 +289,11 @@
 
 		var correctedX = tweenData.endFrame - x;
 		return new Point(correctedX, y);
+	}
+
+	function log(string) {
+		if (debug) {
+			$.writeln(string || '');
+		}
 	}
 })();
