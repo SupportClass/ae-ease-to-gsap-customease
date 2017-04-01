@@ -5,7 +5,8 @@
 		"app": true,
 		"alert": true,
 		"system": true,
-		"KeyframeInterpolationType": true
+		"KeyframeInterpolationType": true,
+		"CompItem": true
 	},
 	"rules": {
 		"no-alert": [0],

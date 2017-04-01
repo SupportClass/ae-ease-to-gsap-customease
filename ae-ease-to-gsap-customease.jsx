@@ -110,6 +110,12 @@
 	// Below this line is the main logic of the script.
 
 	var curItem = app.project.activeItem;
+
+	if (curItem === null || (curItem instanceof CompItem)) {
+		alert('Please Select a Comp');
+		return;
+	}
+
 	var framerate = curItem.frameRate;
 	var selectedProperties = curItem.selectedProperties;
 
