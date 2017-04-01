@@ -8,6 +8,7 @@
 		"KeyframeInterpolationType": true
 	},
 	"rules": {
-		"no-alert": [0]
+		"no-alert": [0],
+		"unicode-bom": [0]
 	}
 }

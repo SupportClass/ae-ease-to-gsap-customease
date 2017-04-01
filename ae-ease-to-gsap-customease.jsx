@@ -1,5 +1,110 @@
-(function () {
+﻿(function () {
 	'use strict';
+
+	/**
+	 * An SVG path comprised of multiple path drawing commands.
+	 * https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+	 * @param startX {number} - If provided, defines the start point for the initial "move" (M) command.
+	 * @param startY {number} - If provided, defines the start point for the initial "move" (M) command.
+	 * @constructor
+	 */
+	function Path(startX, startY) {
+		this.commands = [];
+
+		if (typeof startX === 'number' && typeof startY === 'number') {
+			var moveCommand = new PathCommand('M', startX, startY);
+			this.commands = [moveCommand];
+		}
+	}
+
+	/**
+	 * Inverts the Y axis of all points of all commands in this path.
+	 * Used to help get paths into a format that GSAP's CustomEase plugin expects.
+	 */
+	Path.prototype.invertYAxis = function () {
+		var numCommands = this.commands.length;
+		for (var i = 0; i < numCommands; i++) {
+			var command = this.commands[i];
+			var numPoints = command.points.length;
+
+			for (var j = 0; j < numPoints; j++) {
+				var point = command.points[j];
+				point.y *= -1;
+			}
+		}
+	};
+
+	/**
+	 * Returns the end point of the path.
+	 * @returns {Point}
+	 */
+	Path.prototype.getEndPoint = function () {
+		var numCommands = this.commands.length;
+		var lastCommand = this.commands[numCommands - 1];
+		var numPoints = lastCommand.points.length;
+		return lastCommand.points[numPoints - 1];
+	};
+
+	Path.prototype.toString = function () {
+		var string = '';
+		for (var i = 0; i < this.commands.length; i++) {
+			string += this.commands[i].toString();
+		}
+		return string;
+	};
+
+	/**
+	 * A single SVG path command.
+	 * https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+	 * @param command {string} - A single-character SVG path command, see above MDN link for more details.
+	 * @constructor
+	 */
+	function PathCommand(command) {
+		this.command = command;
+		this.points = [];
+
+		var coordinates = Array.prototype.slice.call(arguments, 1);
+		var hasEvenNumberOfCoordinates = !(coordinates.length % 2);
+		if (hasEvenNumberOfCoordinates) {
+			for (var i = 0; i < coordinates.length; i += 2) {
+				var point = new Point(coordinates[i], coordinates[i + 1]);
+				this.points.push(point);
+			}
+		} else {
+			throw new Error('Must provide an even number of coordinates when instantiating a PathCommand.');
+		}
+	}
+
+	PathCommand.prototype.toString = function () {
+		var string = this.command;
+		for (var i = 0; i < this.points.length; i++) {
+			if (i >= 1) {
+				string += ',';
+			}
+
+			string += this.points[i].toString();
+		}
+		return string;
+	};
+
+	/**
+	 * A 2D point in space.
+	 * @param x {number}
+	 * @param y {number}
+	 * @constructor
+	 */
+	function Point(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	Point.prototype.toString = function () {
+		return cleanNumber(this.x) + ',' + cleanNumber(this.y);
+	};
+
+	// Above this line are the class definitions used in the script.
+	/* ---------------------------------------------------------------------------- */
+	// Below this line is the main logic of the script.
 
 	var curItem = app.project.activeItem;
 	var framerate = curItem.frameRate;
@@ -38,16 +143,18 @@
 
 			// The path data we output is in SVG path format: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
 			// Moves the drawing pen to the start point of the path.
-			var path = 'M' + cleanNumber(curveStartFrame) + ',' + cleanNumber(curveStartValue);
+			var path = new Path(curveStartFrame, curveStartValue);
 
 			for (i = 1; i < currentProperty.numKeys; i++) {
+				var command;
 				var tweenData = calcTweenData(currentProperty, i, i + 1);
 				var easeType = calcEaseType(currentProperty, i, i + 1);
 				$.writeln('easeType: ' + easeType);
 
 				// For linear eases, just draw a line. (L x y)
 				if (easeType === 'linear-linear') {
-					path += 'L' + cleanNumber(tweenData.endFrame) + ',' + cleanNumber(tweenData.endValue);
+					command = new PathCommand('L', tweenData.endFrame, tweenData.endValue);
+					path.commands.push(command);
 					continue;
 				}
 
@@ -56,23 +163,37 @@
 					alert('This keyframe pair uses an unsupported pair of ease types, results may be inaccurate.');
 				}
 
-				path += 'C' + calcOutgoingControlPoint(tweenData, currentProperty, i);
-				path += ',' + calcIncomingControlPoint(tweenData, currentProperty, i);
-				path += ',' + cleanNumber(tweenData.endFrame) + ',' + cleanNumber(tweenData.endValue);
+				command = new PathCommand('C');
+				command.points.push(
+					calcOutgoingControlPoint(tweenData, currentProperty, i),
+					calcIncomingControlPoint(tweenData, currentProperty, i),
+					new Point(tweenData.endFrame, tweenData.endValue) // End anchor point.
+				);
+				path.commands.push(command);
 
 				$.writeln();
 			}
 
-			$.writeln(path);
+			var endPoint = path.getEndPoint();
+			if (endPoint.y > curveStartValue) {
+				path.invertYAxis();
+			}
+
+			var pathString = path.toString();
+			$.writeln(pathString);
 			$.writeln();
 			$.writeln();
-			copyTextToClipboard(path);
-			alert('Copied to clipboard:\n' + path +
+			copyTextToClipboard(pathString);
+			alert('Copied to clipboard:\n' + pathString +
 				'\n\nPaste directly into a GSAP CustomEase, like:\n' +
-				'CustomEase.create(\'myCustomEase\', \'' + path + '\');' +
+				'CustomEase.create(\'myCustomEase\', \'' + pathString + '\');' +
 				'\n\nMore info: https://greensock.com/docs/#/HTML5/GSAP/Easing/CustomEase/');
 		}
 	}
+
+	// Above this line is the main logic of the script.
+	/* ---------------------------------------------------------------------------- */
+	// Below this line are the helper functions that the main logic uses.
 
 	function calcTweenData(property, startIndex, endIndex) {
 		var startTime = property.keyTime(startIndex);
@@ -159,10 +280,8 @@
 		var b = tweenData.startValue; // Y-intercept
 		var y = (m * x) + b;
 
-		var correctedX = cleanNumber(tweenData.startFrame + x);
-		var correctedY = cleanNumber(y);
-		$.writeln('Outgoing CP: ' + correctedX + ',' + correctedY);
-		return correctedX + ',' + correctedY;
+		var correctedX = tweenData.startFrame + x;
+		return new Point(correctedX, y);
 	}
 
 	function calcIncomingControlPoint(tweenData, property, keyIndex) {
@@ -175,9 +294,7 @@
 		var b = tweenData.endValue; // Y-intercept
 		var y = (m * x) + b;
 
-		var correctedX = cleanNumber(tweenData.endFrame - x);
-		var correctedY = cleanNumber(y);
-		$.writeln('Incoming CP: ' + correctedX + ', ' + correctedY);
-		return correctedX + ',' + correctedY;
+		var correctedX = tweenData.endFrame - x;
+		return new Point(correctedX, y);
 	}
 })();
