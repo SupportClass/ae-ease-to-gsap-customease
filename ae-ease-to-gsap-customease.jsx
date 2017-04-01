@@ -108,87 +108,75 @@
 
 	var curItem = app.project.activeItem;
 	var framerate = curItem.frameRate;
-	var selectedLayers = curItem.selectedLayers;
 	var selectedProperties = curItem.selectedProperties;
-
-	if (selectedLayers.length === 0) {
-		alert('Please Select at least one Layer');
-		return;
-	}
 
 	if (selectedProperties.length === 0) {
 		alert('Please Select at least one Property (Scale, Opacity, etc)');
 		return;
 	}
 
-	for (var i = 0; i < selectedLayers.length; i++) {
-		for (var f in selectedProperties) {
-			if (!{}.hasOwnProperty.call(selectedProperties, f)) {
-				continue;
-			}
-
-			var currentProperty = selectedProperties[f];
-			if (currentProperty.numKeys <= 1) {
-				continue;
-			}
-
-			var curveStartFrame = currentProperty.keyTime(1) * framerate;
-			var curveStartValue;
-
-			if (currentProperty.value instanceof Array) {
-				curveStartValue = currentProperty.keyValue(1)[0];
-			} else {
-				curveStartValue = currentProperty.keyValue(1);
-			}
-
-			// The path data we output is in SVG path format: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
-			// Moves the drawing pen to the start point of the path.
-			var path = new Path(curveStartFrame, curveStartValue);
-
-			for (i = 1; i < currentProperty.numKeys; i++) {
-				var command;
-				var tweenData = calcTweenData(currentProperty, i, i + 1);
-				var easeType = calcEaseType(currentProperty, i, i + 1);
-				$.writeln('easeType: ' + easeType);
-
-				// For linear eases, just draw a line. (L x y)
-				if (easeType === 'linear-linear') {
-					command = new PathCommand('L', tweenData.endFrame, tweenData.endValue);
-					path.commands.push(command);
-					continue;
-				}
-
-				if (easeType === 'unsupported') {
-					$.writeln('UNSUPPORTED EASING PAIR!');
-					alert('This keyframe pair uses an unsupported pair of ease types, results may be inaccurate.');
-				}
-
-				command = new PathCommand('C');
-				command.points.push(
-					calcOutgoingControlPoint(tweenData, currentProperty, i),
-					calcIncomingControlPoint(tweenData, currentProperty, i),
-					new Point(tweenData.endFrame, tweenData.endValue) // End anchor point.
-				);
-				path.commands.push(command);
-
-				$.writeln();
-			}
-
-			var endPoint = path.getEndPoint();
-			if (endPoint.y > curveStartValue) {
-				path.invertYAxis();
-			}
-
-			var pathString = path.toString();
-			$.writeln(pathString);
-			$.writeln();
-			$.writeln();
-			copyTextToClipboard(pathString);
-			alert('Copied to clipboard:\n' + pathString +
-				'\n\nPaste directly into a GSAP CustomEase, like:\n' +
-				'CustomEase.create(\'myCustomEase\', \'' + pathString + '\');' +
-				'\n\nMore info: https://greensock.com/docs/#/HTML5/GSAP/Easing/CustomEase/');
+	for (var f = 0; f < selectedProperties.length; f++) {
+		var currentProperty = selectedProperties[f];
+		if (currentProperty.numKeys <= 1) {
+			continue;
 		}
+
+		var curveStartFrame = currentProperty.keyTime(1) * framerate;
+		var curveStartValue;
+
+		if (currentProperty.value instanceof Array) {
+			curveStartValue = currentProperty.keyValue(1)[0];
+		} else {
+			curveStartValue = currentProperty.keyValue(1);
+		}
+
+		// The path data we output is in SVG path format: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+		// Moves the drawing pen to the start point of the path.
+		var path = new Path(curveStartFrame, curveStartValue);
+
+		for (var i = 1; i < currentProperty.numKeys; i++) {
+			var command;
+			var tweenData = calcTweenData(currentProperty, i, i + 1);
+			var easeType = calcEaseType(currentProperty, i, i + 1);
+			$.writeln('easeType: ' + easeType);
+
+			// For linear eases, just draw a line. (L x y)
+			if (easeType === 'linear-linear') {
+				command = new PathCommand('L', tweenData.endFrame, tweenData.endValue);
+				path.commands.push(command);
+				continue;
+			}
+
+			if (easeType === 'unsupported') {
+				$.writeln('UNSUPPORTED EASING PAIR!');
+				alert('This keyframe pair uses an unsupported pair of ease types, results may be inaccurate.');
+			}
+
+			command = new PathCommand('C');
+			command.points.push(
+				calcOutgoingControlPoint(tweenData, currentProperty, i),
+				calcIncomingControlPoint(tweenData, currentProperty, i),
+				new Point(tweenData.endFrame, tweenData.endValue) // End anchor point.
+			);
+			path.commands.push(command);
+
+			$.writeln();
+		}
+
+		var endPoint = path.getEndPoint();
+		if (endPoint.y > curveStartValue) {
+			path.invertYAxis();
+		}
+
+		var pathString = path.toString();
+		$.writeln(pathString);
+		$.writeln();
+		$.writeln();
+		copyTextToClipboard(pathString);
+		alert('Copied to clipboard:\n' + pathString +
+			'\n\nPaste directly into a GSAP CustomEase, like:\n' +
+			'CustomEase.create(\'myCustomEase\', \'' + pathString + '\');' +
+			'\n\nMore info: https://greensock.com/docs/#/HTML5/GSAP/Easing/CustomEase/');
 	}
 
 	// Above this line is the main logic of the script.
