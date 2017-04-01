@@ -22,6 +22,6 @@
     "eslint-config-xo": "^0.18.1"
   },
   "files": [
-    "ae-ease-to-gsap-customease.jss"
+    "ae-ease-to-gsap-customease.jsx"
   ]
 }
