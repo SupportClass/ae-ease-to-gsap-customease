@@ -144,7 +144,7 @@
 
 	function getPath(property) {
 		if (property.numKeys <= 1) {
-			return;
+			return null;
 		}
 
 		var curveStartFrame = property.keyTime(1) * framerate;
