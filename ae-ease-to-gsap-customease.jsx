@@ -111,7 +111,7 @@
 
 	var curItem = app.project.activeItem;
 
-	if (curItem === null || (curItem instanceof CompItem)) {
+	if (curItem === null || !(curItem instanceof CompItem)) {
 		alert('Please Select a Comp');
 		return;
 	}
