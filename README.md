@@ -9,7 +9,7 @@ Ever wished you could take your ease curve from the graph editor in After Effect
 in your [GSAP](https://greensock.com/gsap) animation? Now you can.
 
 ## Installation
-1. [Click here](https://github.com/SupportClass/ae-ease-to-gsap-customease/raw/master/ae-ease-to-gsap-customease.js)
+1. [Click here](https://github.com/SupportClass/ae-ease-to-gsap-customease/raw/master/ae-ease-to-gsap-customease.jsx)
 to download `ae-ease-to-gsap-customease.jsx`, and save it to a place where you can find it again easily.
 
 ## Usage
