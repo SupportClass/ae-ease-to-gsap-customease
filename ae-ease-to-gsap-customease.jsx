@@ -298,7 +298,7 @@
 		var incomingSpeed = incomingEase[0].speed;
 		var incomingInfluence = incomingEase[0].influence / 100;
 
-		var m = Math.abs(incomingSpeed) / framerate; // Slope
+		var m = -incomingSpeed / framerate; // Slope
 		var x = tweenData.durationFrames * incomingInfluence;
 		var b = tweenData.endValue; // Y-intercept
 		var y = (m * x) + b;
