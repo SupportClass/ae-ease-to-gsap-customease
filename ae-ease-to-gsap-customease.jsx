@@ -162,7 +162,13 @@
 
 		for (var i = 1; i < property.numKeys; i++) {
 			var command = getCommand(property, i);
-			path.commands.push(command);
+
+			// Some invocations of getCommand will actually return an Array of commands.
+			if (command instanceof Array) {
+				path.commands = path.commands.concat(command);
+			} else {
+				path.commands.push(command);
+			}
 
 			log();
 		}
@@ -184,6 +190,13 @@
 		if (easeType === 'linear-linear') {
 			command = new PathCommand('L', tweenData.endFrame, tweenData.endValue);
 			return command;
+		}
+
+		if (easeType === 'hold-hold' || easeType === 'linear-hold' || easeType === 'hold-linear') {
+			return [
+				new PathCommand('L', tweenData.endFrame, tweenData.startValue),
+				new PathCommand('L', tweenData.endFrame, tweenData.endValue)
+			];
 		}
 
 		if (easeType === 'unsupported') {
@@ -274,6 +287,21 @@
 		if (startInterpolation === KeyframeInterpolationType.BEZIER &&
 			endInterpolation === KeyframeInterpolationType.BEZIER) {
 			return 'bezier-bezier';
+		}
+
+		if (startInterpolation === KeyframeInterpolationType.HOLD &&
+			endInterpolation === KeyframeInterpolationType.HOLD) {
+			return 'hold-hold';
+		}
+
+		if (startInterpolation === KeyframeInterpolationType.HOLD &&
+			endInterpolation === KeyframeInterpolationType.LINEAR) {
+			return 'hold-linear';
+		}
+
+		if (startInterpolation === KeyframeInterpolationType.LINEAR &&
+			endInterpolation === KeyframeInterpolationType.HOLD) {
+			return 'linear-hold';
 		}
 
 		return 'unsupported';
