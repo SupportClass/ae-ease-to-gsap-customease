@@ -126,15 +126,27 @@
 
 	for (var f = 0; f < selectedProperties.length; f++) {
 		var currentProperty = selectedProperties[f];
-		if (!currentProperty.dimensionsSeparated && currentProperty.isSeparationLeader) {
-			alert('Property "' + currentProperty.name + '" is multi-dimensional, which is not supported.\n\n' +
-				'Please right-click on it and select "Separate Dimensions" before using this script.');
+
+		// Ignore properties that have one or fewer keyframes.
+		if (currentProperty.numKeys <= 1) {
 			continue;
 		}
 
-		var path = getPath(currentProperty);
+		if (currentProperty.value instanceof Array) {
+			// Handle multi-dimensional properties.
+			for (var d = 0; d < currentProperty.value.length; d++) {
+				processProperty(currentProperty, d);
+			}
+		} else {
+			// Handle single-dimensional properties.
+			processProperty(currentProperty);
+		}
+	}
+
+	function processProperty(property, dimension) {
+		var path = getPath(property, dimension);
 		if (path === null) {
-			continue;
+			return;
 		}
 
 		var pathString = path.toString();
@@ -142,22 +154,25 @@
 		log();
 		log();
 		copyTextToClipboard(pathString);
-		alert('Copied to clipboard:\n' + pathString +
+
+		var alertStart = 'Copied ease for property "' + property.name + '"';
+		if (typeof dimension === 'number') {
+			alertStart += ' (dimension ' + (dimension + 1) + '/' + property.value.length + ')';
+		}
+		alertStart += ' to clipboard:\n';
+
+		alert(alertStart + pathString +
 			'\n\nPaste directly into a GSAP CustomEase, like:\n' +
 			'CustomEase.create(\'myCustomEase\', \'' + pathString + '\');' +
 			'\n\nMore info: https://greensock.com/docs/#/HTML5/GSAP/Easing/CustomEase/');
 	}
 
-	function getPath(property) {
-		if (property.numKeys <= 1) {
-			return null;
-		}
-
+	function getPath(property, dimension) {
 		var curveStartFrame = property.keyTime(1) * framerate;
 		var curveStartValue;
 
-		if (property.value instanceof Array) {
-			curveStartValue = property.keyValue(1)[0];
+		if (typeof dimension === 'number') {
+			curveStartValue = property.keyValue(1)[dimension];
 		} else {
 			curveStartValue = property.keyValue(1);
 		}
@@ -167,7 +182,7 @@
 		var path = new Path(curveStartFrame, curveStartValue);
 
 		for (var i = 1; i < property.numKeys; i++) {
-			var command = getCommand(property, i);
+			var command = getCommand(property, i, dimension);
 
 			// Some invocations of getCommand will actually return an Array of commands.
 			if (command instanceof Array) {
@@ -186,9 +201,9 @@
 		return path;
 	}
 
-	function getCommand(property, keyIndex) {
+	function getCommand(property, keyIndex, dimension) {
 		var command;
-		var tweenData = calcTweenData(property, keyIndex, keyIndex + 1);
+		var tweenData = calcTweenData(property, keyIndex, keyIndex + 1, dimension);
 		var easeType = calcEaseType(property, keyIndex, keyIndex + 1);
 		log('easeType: ' + easeType);
 
@@ -223,7 +238,7 @@
 	/* ---------------------------------------------------------------------------- */
 	// Below this line are the helper functions that the main logic uses.
 
-	function calcTweenData(property, startIndex, endIndex) {
+	function calcTweenData(property, startIndex, endIndex, dimension) {
 		var startTime = property.keyTime(startIndex);
 		var endTime = property.keyTime(endIndex);
 		var durationTime = endTime - startTime;
@@ -236,8 +251,8 @@
 		var endValue;
 
 		if (property.value instanceof Array) {
-			startValue = property.keyValue(startIndex)[0];
-			endValue = property.keyValue(endIndex)[0];
+			startValue = property.keyValue(startIndex)[dimension];
+			endValue = property.keyValue(endIndex)[dimension];
 		} else {
 			startValue = property.keyValue(startIndex);
 			endValue = property.keyValue(endIndex);
