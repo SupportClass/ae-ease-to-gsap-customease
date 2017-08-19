@@ -126,6 +126,12 @@
 
 	for (var f = 0; f < selectedProperties.length; f++) {
 		var currentProperty = selectedProperties[f];
+		if (!currentProperty.dimensionsSeparated && currentProperty.isSeparationLeader) {
+			alert('Property "' + currentProperty.name + '" is multi-dimensional, which is not supported.\n\n' +
+				'Please right-click on it and select "Separate Dimensions" before using this script.');
+			continue;
+		}
+
 		var path = getPath(currentProperty);
 		if (path === null) {
 			continue;
