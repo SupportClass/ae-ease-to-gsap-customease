@@ -23,7 +23,7 @@ to download `ae-ease-to-gsap-customease.jsx`, and save it to a place where you c
 	![success_alert](media/success_alert.png)
 7. You can now paste the contents of your clipboard directly into a [GSAP CustomEase](https://greensock.com/docs/#/HTML5/GSAP/Easing/CustomEase/).
 
-To preview your ease, you can paste it into GreenSock's "[Ease Visualizer](https://greensock.com/docs/#/HTML5/GSAP/Easing/CustomEase/)" tool.
+To preview your ease, you can paste it into GreenSock's "[Ease Visualizer](https://greensock.com/ease-visualizer)" tool.
 
 ## Thanks
 In writing this script, I studied code from
