@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/SupportClass/ae-ease-to-gsap-customease#readme",
   "devDependencies": {
-    "eslint": "^3.18.0",
+    "eslint": "^6.8.0",
     "eslint-config-aftereffects": "^1.0.1",
     "eslint-config-xo": "^0.18.1"
   },
